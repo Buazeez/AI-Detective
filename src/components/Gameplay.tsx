@@ -169,19 +169,17 @@ const Gameplay: React.FC<GameplayProps> = ({ player, levelId, onPlayerUpdate, on
     setScore(Math.max(0, totalScore));
     setGameState('completed');
 
-    // Update player score
+    // Update player score (but not current level yet)
     const newTotalScore = player.totalScore + totalScore;
-    const newLevel = Math.max(player.currentLevel, levelId + 1);
     
-    // Update player state
+    // Update player state with new score
     const updatedPlayer = {
       ...player,
-      totalScore: newTotalScore,
-      currentLevel: newLevel
+      totalScore: newTotalScore
     };
     onPlayerUpdate(updatedPlayer);
     
-    updatePlayerScore(player.id, newTotalScore, newLevel);
+    updatePlayerScore(player.id, newTotalScore, player.currentLevel);
     
     // Submit game session
     submitGameSession({
@@ -439,9 +437,22 @@ const Gameplay: React.FC<GameplayProps> = ({ player, levelId, onPlayerUpdate, on
             <h3 className="text-2xl font-bold text-white mb-2">
               {score > 0 ? 'Great Detective Work!' : 'Keep Practicing!'}
             </h3>
-            <p className="text-xl text-detective-300 mb-4">
-              You scored {score} points!
-            </p>
+            <div className="space-y-2 mb-4">
+              <p className="text-xl text-detective-300">
+                You scored {score} points!
+              </p>
+              <div className="flex justify-center space-x-6 text-sm">
+                <span className="text-green-300">
+                  ✅ Found: {selectedHallucinations.size} errors
+                </span>
+                <span className="text-red-300">
+                  ❌ Missed: {hallucinations.length - selectedHallucinations.size} errors
+                </span>
+                <span className="text-blue-300">
+                  ⏱️ Time: {formatTime(300 - timeLeft)}
+                </span>
+              </div>
+            </div>
           </div>
 
           {/* Hallucination Explanations */}
@@ -489,7 +500,22 @@ const Gameplay: React.FC<GameplayProps> = ({ player, levelId, onPlayerUpdate, on
             </button>
             {levelId < 10 ? (
               <button
-                onClick={() => onNextLevel ? onNextLevel() : window.location.reload()}
+                onClick={() => {
+                  // Update player's current level when they click Next Level
+                  const newLevel = Math.max(player.currentLevel, levelId + 1);
+                  const updatedPlayer = {
+                    ...player,
+                    currentLevel: newLevel
+                  };
+                  onPlayerUpdate(updatedPlayer);
+                  
+                  // Then navigate to next level
+                  if (onNextLevel) {
+                    onNextLevel();
+                  } else {
+                    window.location.reload();
+                  }
+                }}
                 className="bg-white/10 hover:bg-white/20 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200"
               >
                 Next Level

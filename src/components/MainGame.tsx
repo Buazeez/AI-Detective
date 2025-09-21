@@ -33,10 +33,10 @@ const MainGame: React.FC<MainGameProps> = ({ player, onLogout, onPlayerUpdate })
     }
   };
 
-  // Update selected level when player's current level changes
+  // Only update selected level on initial load, not when player progresses
   useEffect(() => {
     setSelectedLevel(player.currentLevel);
-  }, [player.currentLevel]);
+  }, []); // Empty dependency array - only run once on mount
 
   return (
     <div className="min-h-screen">
