@@ -9,8 +9,8 @@ An educational web game that teaches AI literacy by having students detect hallu
 ### Key Features
 
 - **18 Progressive Levels** across 3 difficulty tiers (Beginner, Intermediate, Advanced)
-- **Real-time Global Leaderboard** with competitive rankings
-- **Dynamic AI Content Generation** using OpenRouter API
+- **Local Leaderboard** with competitive rankings stored in browser
+- **Preloaded Educational Content** with intentional errors for learning
 - **Interactive Hallucination Detection** with clickable error identification
 - **Educational Feedback** with explanations for each detected error
 - **Achievement System** with badges and progress tracking
@@ -19,8 +19,8 @@ An educational web game that teaches AI literacy by having students detect hallu
 
 - **Frontend**: React 18 + TypeScript + Vite
 - **Styling**: Tailwind CSS with custom design system
-- **Backend**: Firebase (Firestore + Realtime Database + Auth)
-- **AI Integration**: OpenRouter API (Meta Llama 3.1 8B Instruct)
+- **Storage**: Local Storage (no backend required)
+- **Content**: Preloaded educational responses with intentional errors
 - **Deployment**: Vercel
 - **Animations**: Framer Motion
 - **Notifications**: React Hot Toast
@@ -31,8 +31,6 @@ An educational web game that teaches AI literacy by having students detect hallu
 
 - Node.js 18+
 - npm or yarn
-- Firebase project
-- OpenRouter API account
 
 ### Installation
 
@@ -44,27 +42,9 @@ An educational web game that teaches AI literacy by having students detect hallu
    npm install
    ```
 
-2. **Set up environment variables:**
+2. **No setup required!**
 
-   ```bash
-   cp env.example .env.local
-   ```
-
-   Fill in your API keys in `.env.local`:
-
-   ```env
-   # Firebase Configuration
-   VITE_FIREBASE_API_KEY=your_firebase_api_key_here
-   VITE_FIREBASE_AUTH_DOMAIN=your_project_id.firebaseapp.com
-   VITE_FIREBASE_PROJECT_ID=your_project_id_here
-   VITE_FIREBASE_STORAGE_BUCKET=your_project_id.appspot.com
-   VITE_FIREBASE_MESSAGING_SENDER_ID=your_messaging_sender_id_here
-   VITE_FIREBASE_APP_ID=your_firebase_app_id_here
-   VITE_FIREBASE_DATABASE_URL=https://your_project_id-default-rtdb.firebaseio.com/
-
-   # OpenRouter API Configuration
-   VITE_OPENROUTER_API_KEY=your_openrouter_api_key_here
-   ```
+   The game uses preloaded educational content with intentional errors. No API keys or external services needed.
 
 3. **Start development server:**
 
@@ -75,23 +55,24 @@ An educational web game that teaches AI literacy by having students detect hallu
 4. **Open your browser:**
    Navigate to `http://localhost:3000`
 
-## 🔧 Required API Keys
+## 🎮 How It Works
 
-### Firebase Setup
+### Preloaded Content System
 
-1. Go to [Firebase Console](https://console.firebase.google.com/)
-2. Create a new project or use existing
-3. Enable Authentication (Anonymous sign-in)
-4. Create Firestore database
-5. Create Realtime Database
-6. Get your config from Project Settings > General > Your apps
+The game uses carefully crafted educational responses with intentional errors:
 
-### OpenRouter Setup
+1. **Level 1 - Moon Facts**: Responses about lunar science with obvious errors
+2. **Level 2 - Dinosaur History**: Timeline and extinction claims with historical mistakes
+3. **Level 3 - Human Anatomy**: Body system explanations with biological errors
 
-1. Go to [OpenRouter](https://openrouter.ai/)
-2. Sign up for an account
-3. Get your API key from the dashboard
-4. The app uses the free Meta Llama 3.1 8B Instruct model
+Each level includes 4-5 specific hallucinations that players must identify and click on.
+
+**Benefits**:
+
+- ✅ **100% Reliable** - No API failures or network issues
+- ✅ **Consistent Experience** - Same educational content every time
+- ✅ **Fast Loading** - No network delays
+- ✅ **Offline Ready** - Works without internet
 
 ## 📁 Project Structure
 
@@ -108,8 +89,7 @@ src/
 ├── data/              # Static data
 │   └── levels.ts      # Level definitions
 ├── lib/               # Utilities and services
-│   ├── firebase.ts    # Firebase configuration
-│   └── aiService.ts   # AI integration
+│   └── localLeaderboard.ts # Local leaderboard management
 ├── types/             # TypeScript type definitions
 │   └── index.ts       # Game types
 └── App.tsx            # Main app component
@@ -119,13 +99,13 @@ src/
 
 ### Core Gameplay Loop
 
-1. **Player Registration** → Quick sign-up for global leaderboard
+1. **Player Registration** → Quick sign-up for local leaderboard
 2. **Task Assignment** → Specific briefing for each level
 3. **Prompt Creation** → Player writes targeted prompt
 4. **AI Response Generation** → System generates response with embedded hallucinations
 5. **Error Detection** → Player clicks suspicious information for points
 6. **Educational Feedback** → Immediate explanation of errors
-7. **Leaderboard Update** → Real-time rank changes
+7. **Leaderboard Update** → Local rank changes
 
 ### Level Progression
 
@@ -173,14 +153,14 @@ npm run preview
 
 ### 3-Minute Demo Flow
 
-- **Minute 1**: Judge registers, sees global leaderboard, receives Level 1 task brief
+- **Minute 1**: Judge registers, sees local leaderboard, receives Level 1 task brief
 - **Minute 2**: Judge writes prompt, AI responds with obvious errors, finds mistakes for points
-- **Minute 3**: Multiple judges compete simultaneously, see real-time rankings and score updates
+- **Minute 3**: Multiple judges compete simultaneously, see local rankings and score updates
 
 ### Key Competition Advantages
 
 - **Instant Engagement**: No complex onboarding, immediate gameplay
-- **Real-time Competition**: Live leaderboard updates during demo
+- **Local Competition**: Live leaderboard updates during demo
 - **Educational Value**: Clear learning objectives and immediate feedback
 - **Scalable**: Handles multiple concurrent players
 - **Mobile Responsive**: Works on all devices
@@ -206,15 +186,15 @@ npm run preview
 
 - **Anonymous Authentication**: No personal data collection
 - **Client-side Processing**: All game logic runs in browser
-- **Secure API Keys**: Environment variables only
-- **No Data Persistence**: Player data stored locally and in Firebase
+- **Secure API Keys**: Environment variables only (optional)
+- **Local Data Storage**: Player data stored locally in browser
 - **Age-Appropriate Content**: All AI responses pre-screened for educational content
 
 ## 📊 Performance Optimization
 
 - **Code Splitting**: Lazy loading of components
 - **Image Optimization**: Optimized assets and lazy loading
-- **Caching**: Firebase caching for leaderboard data
+- **Caching**: Local storage for leaderboard data
 - **Bundle Size**: Minimal dependencies, tree-shaking enabled
 - **CDN**: Vercel's global CDN for fast loading
 
@@ -222,17 +202,17 @@ npm run preview
 
 ### Common Issues
 
-1. **Firebase Connection Error**: Check your Firebase config and rules
-2. **AI API Error**: Verify OpenRouter API key and credits
-3. **Build Errors**: Ensure all environment variables are set
-4. **Deployment Issues**: Check Vercel environment variables
+1. **Build Errors**: Check that all dependencies are installed
+2. **Deployment Issues**: Ensure Vercel is properly configured
+3. **Local Storage Issues**: Clear browser data if needed
+4. **Game Not Loading**: Check browser console for errors
 
 ### Development Tips
 
 - Use `npm run dev` for hot reloading
 - Check browser console for errors
 - Use React DevTools for component debugging
-- Firebase Emulator for local testing
+- Local storage inspection in browser dev tools
 
 ## 📈 Future Enhancements
 

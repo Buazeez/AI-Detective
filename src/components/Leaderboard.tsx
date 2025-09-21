@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Trophy, Medal, Award, Crown, Star } from 'lucide-react';
 import { Player, LeaderboardEntry } from '../types';
 import { useGame } from '../contexts/GameContext';
+import { LocalLeaderboard } from '../lib/localLeaderboard';
 
 interface LeaderboardProps {
   player: Player;
@@ -9,11 +10,12 @@ interface LeaderboardProps {
 
 const Leaderboard: React.FC<LeaderboardProps> = ({ player }) => {
   const { leaderboard, updateLeaderboard } = useGame();
-  const [activeTab, setActiveTab] = useState<'today' | 'week' | 'all'>('today');
 
   useEffect(() => {
     updateLeaderboard();
   }, [updateLeaderboard]);
+
+  const playerStats = LocalLeaderboard.getPlayerStats(player.id);
 
   const getRankIcon = (rank: number) => {
     switch (rank) {
@@ -55,40 +57,20 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ player }) => {
           <div className="text-right">
             <p className="text-white/80">Your Rank</p>
             <p className="text-2xl font-bold text-detective-300">
-              #{leaderboard.findIndex(entry => entry.id === player.id) + 1 || 'Unranked'}
+              #{playerStats.rank}
+            </p>
+            <p className="text-sm text-white/60">
+              Top {playerStats.percentile}% of {playerStats.totalPlayers} players
             </p>
           </div>
         </div>
 
-        {/* Tabs */}
-        <div className="flex space-x-1 bg-white/10 rounded-lg p-1">
-          {[
-            { id: 'today', label: 'Today', icon: '🌟' },
-            { id: 'week', label: 'This Week', icon: '⚡' },
-            { id: 'all', label: 'All Time', icon: '👑' }
-          ].map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id as any)}
-              className={`flex-1 flex items-center justify-center py-2 px-4 rounded-md text-sm font-medium transition-all ${
-                activeTab === tab.id
-                  ? 'bg-detective-500 text-white'
-                  : 'text-white/70 hover:text-white hover:bg-white/10'
-              }`}
-            >
-              <span className="mr-2">{tab.icon}</span>
-              {tab.label}
-            </button>
-          ))}
-        </div>
       </div>
 
       {/* Leaderboard */}
       <div className="detective-card">
         <h3 className="text-lg font-semibold text-white mb-4">
-          {activeTab === 'today' && '🌟 TODAY\'S CHAMPIONS'}
-          {activeTab === 'week' && '⚡ THIS WEEK'}
-          {activeTab === 'all' && '👑 ALL TIME LEGENDS'}
+          🏆 LOCAL LEADERBOARD
         </h3>
 
         {filteredLeaderboard.length === 0 ? (
@@ -155,9 +137,9 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ player }) => {
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-detective-300">
-                {leaderboard.findIndex(entry => entry.id === player.id) + 1 || 'Unranked'}
+                #{playerStats.rank}
               </div>
-              <div className="text-sm text-white/60">Global Rank</div>
+              <div className="text-sm text-white/60">Local Rank</div>
             </div>
           </div>
         </div>

@@ -1,17 +1,43 @@
 import React, { useState, useEffect } from 'react';
 import { Player, Hallucination } from '../types';
 import { getLevelById } from '../data/levels';
-import { AIService } from '../lib/aiService';
 import { useGame } from '../contexts/GameContext';
 import toast from 'react-hot-toast';
-import { Clock, Target, Zap, CheckCircle, XCircle } from 'lucide-react';
+import { Clock, Target, CheckCircle, XCircle } from 'lucide-react';
+
+// Import preloaded levels data
+import preloadedLevelsData from '../data/preloadedLevels.json';
+
+const getPreloadedResponse = (levelId: number, playerPrompt: string) => {
+  const nameMatch = playerPrompt.match(/(?:my name is|i'm|i am|call me)\s+([a-zA-Z]+)/i);
+  const playerName = nameMatch ? nameMatch[1] : 'there';
+  
+  const levelData = preloadedLevelsData.levels[levelId.toString() as keyof typeof preloadedLevelsData.levels];
+  
+  if (!levelData) {
+    return {
+      content: `Hi ${playerName}! This level is not available yet.`,
+      hallucinations: []
+    };
+  }
+
+  // Replace {name} placeholder with actual player name
+  const content = levelData.content.replace(/{name}/g, playerName);
+  
+  return {
+    content,
+    hallucinations: levelData.hallucinations
+  };
+};
 
 interface GameplayProps {
   player: Player;
   levelId: number;
+  onPlayerUpdate: (player: Player) => void;
+  onNextLevel?: () => void;
 }
 
-const Gameplay: React.FC<GameplayProps> = ({ player, levelId }) => {
+const Gameplay: React.FC<GameplayProps> = ({ player, levelId, onPlayerUpdate, onNextLevel }) => {
   const { updatePlayerScore, submitGameSession } = useGame();
   const [level, setLevel] = useState(getLevelById(levelId));
   const [playerPrompt, setPlayerPrompt] = useState('');
@@ -52,14 +78,15 @@ const Gameplay: React.FC<GameplayProps> = ({ player, levelId }) => {
 
     setIsLoading(true);
     try {
-      const response = await AIService.generateResponse(levelId, playerPrompt);
+      // Use preloaded content instead of AI service
+      const response = getPreloadedResponse(levelId, playerPrompt);
       setAiResponse(response.content);
       setHallucinations(response.hallucinations);
       setGameState('response');
       setTimeLeft(300);
     } catch (error) {
-      console.error('Error generating AI response:', error);
-      toast.error('Failed to generate AI response. Please try again.');
+      console.error('Error generating response:', error);
+      toast.error('Failed to generate response. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -75,6 +102,42 @@ const Gameplay: React.FC<GameplayProps> = ({ player, levelId }) => {
       newSelected.add(index);
     }
     setSelectedHallucinations(newSelected);
+  };
+
+  const handleUnitClick = (unit: {
+    text: string;
+    isHallucination: boolean;
+    hallucinationIndex: number;
+    isSelected: boolean;
+  }) => {
+    if (gameState !== 'response') return;
+
+    if (unit.isHallucination) {
+      handleHallucinationClick(unit.hallucinationIndex);
+      toast.success(`Correct! You found: "${unit.text.trim()}"`);
+    } else {
+      // Check if this word is part of any hallucination
+      const hallucinationMatch = hallucinations.find((hallucination) => {
+        // Handle both literal text and regex patterns
+        let pattern = hallucination.text;
+        if (!pattern.includes('.*') && !pattern.includes('\\')) {
+          // If it's not already a regex pattern, escape special characters
+          pattern = pattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        }
+        const regex = new RegExp(`\\b${unit.text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'gi');
+        return regex.test(pattern);
+      });
+
+      if (hallucinationMatch) {
+        // This word is part of a hallucination, so select the whole hallucination
+        const hallucinationIndex = hallucinations.findIndex(h => h === hallucinationMatch);
+        handleHallucinationClick(hallucinationIndex);
+        toast.success(`Correct! You found: "${hallucinationMatch.text}"`);
+      } else {
+        // Show pop-up for wrong selection
+        toast.error(`Wrong! Try again. Look for factual errors or impossible claims.`);
+      }
+    }
   };
 
   const handleSubmit = async () => {
@@ -110,10 +173,18 @@ const Gameplay: React.FC<GameplayProps> = ({ player, levelId }) => {
     const newTotalScore = player.totalScore + totalScore;
     const newLevel = Math.max(player.currentLevel, levelId + 1);
     
-    await updatePlayerScore(player.id, newTotalScore, newLevel);
+    // Update player state
+    const updatedPlayer = {
+      ...player,
+      totalScore: newTotalScore,
+      currentLevel: newLevel
+    };
+    onPlayerUpdate(updatedPlayer);
+    
+    updatePlayerScore(player.id, newTotalScore, newLevel);
     
     // Submit game session
-    await submitGameSession({
+    submitGameSession({
       playerId: player.id,
       levelId,
       playerPrompt,
@@ -218,38 +289,131 @@ const Gameplay: React.FC<GameplayProps> = ({ player, levelId }) => {
           <div className="detective-card">
             <h3 className="text-xl font-semibold text-white mb-4">🤖 AI Response</h3>
             <div className="bg-slate-800 rounded-lg p-4 text-white/90 leading-relaxed">
-              {aiResponse.split(' ').map((word, index) => {
-                const hallucinationIndex = hallucinations.findIndex(h => 
-                  aiResponse.toLowerCase().includes(h.text.toLowerCase()) && 
-                  word.toLowerCase().includes(h.text.toLowerCase())
-                );
+              {(() => {
+                let result: React.ReactNode[] = [];
+                let text = aiResponse;
+                let lastIndex = 0;
                 
-                if (hallucinationIndex !== -1) {
-                  const hallucination = hallucinations[hallucinationIndex];
-                  return (
+                // Find all hallucination matches in the text
+                const matches: Array<{
+                  start: number;
+                  end: number;
+                  hallucinationIndex: number;
+                  text: string;
+                  hallucination: Hallucination;
+                }> = [];
+                
+                hallucinations.forEach((hallucination, index) => {
+                  // Handle both literal text and regex patterns
+                  let pattern = hallucination.text;
+                  if (!pattern.includes('.*') && !pattern.includes('\\')) {
+                    // If it's not already a regex pattern, escape special characters
+                    pattern = pattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                  }
+                  const regex = new RegExp(`(${pattern})`, 'gi');
+                  let match;
+                  while ((match = regex.exec(text)) !== null) {
+                    matches.push({
+                      start: match.index,
+                      end: match.index + match[0].length,
+                      hallucinationIndex: index,
+                      text: match[0],
+                      hallucination: hallucination
+                    });
+                  }
+                });
+                
+                // Sort matches by start position
+                matches.sort((a, b) => a.start - b.start);
+                
+                // Build the result with separate hallucination units
+                matches.forEach((match, matchIndex) => {
+                  // Add text before this match
+                  if (match.start > lastIndex) {
+                    const beforeText = text.slice(lastIndex, match.start);
+                    // Split non-hallucination text into clickable chunks
+                    const words = beforeText.split(/(\s+)/);
+                    words.forEach((word, wordIndex) => {
+                      if (word.trim() === '') {
+                        result.push(word);
+                      } else {
+                        result.push(
+                          <span
+                            key={`text-${matchIndex}-${wordIndex}`}
+                            className="cursor-pointer rounded px-1 py-0.5"
+                            onClick={() => handleUnitClick({
+                              text: word,
+                              isHallucination: false,
+                              hallucinationIndex: -1,
+                              isSelected: false
+                            })}
+                          >
+                            {word}
+                          </span>
+                        );
+                      }
+                    });
+                  }
+                  
+                  // Add the separate hallucination
+                  result.push(
                     <span
-                      key={index}
-                      className={`hallucination-text ${
-                        selectedHallucinations.has(hallucinationIndex) 
+                      key={`hallucination-${matchIndex}`}
+                      className={`cursor-pointer rounded px-1 py-0.5 ${
+                        selectedHallucinations.has(match.hallucinationIndex) 
                           ? 'bg-red-500/30 text-red-300' 
                           : ''
                       }`}
-                      onClick={() => handleHallucinationClick(hallucinationIndex)}
+                      onClick={() => handleUnitClick({
+                        text: match.text,
+                        isHallucination: true,
+                        hallucinationIndex: match.hallucinationIndex,
+                        isSelected: selectedHallucinations.has(match.hallucinationIndex)
+                      })}
                     >
-                      {word}{' '}
+                      {match.text}
                     </span>
                   );
+                  
+                  lastIndex = match.end;
+                });
+                
+                // Add remaining text
+                if (lastIndex < text.length) {
+                  const remainingText = text.slice(lastIndex);
+                  const words = remainingText.split(/(\s+)/);
+                  words.forEach((word, wordIndex) => {
+                    if (word.trim() === '') {
+                      result.push(word);
+                    } else {
+                      result.push(
+                        <span
+                          key={`text-end-${wordIndex}`}
+                          className="cursor-pointer rounded px-1 py-0.5"
+                          onClick={() => handleUnitClick({
+                            text: word,
+                            isHallucination: false,
+                            hallucinationIndex: -1,
+                            isSelected: false
+                          })}
+                        >
+                          {word}
+                        </span>
+                      );
+                    }
+                  });
                 }
-                return <span key={index}>{word} </span>;
-              })}
+                
+                return result;
+              })()}
             </div>
             
-            <div className="mt-4 p-3 bg-blue-500/10 border border-blue-500/30 rounded-lg">
-              <p className="text-blue-300 text-sm">
-                💡 Click on suspicious or incorrect information in the AI response above. 
-                You have {formatTime(timeLeft)} to find all the errors!
-              </p>
-            </div>
+             <div className="mt-4 p-3 bg-blue-500/10 border border-blue-500/30 rounded-lg">
+               <p className="text-blue-300 text-sm">
+                 💡 Read the AI response carefully and click on any sentences or phrases that contain errors or incorrect information. 
+                 Each highlighted section is clickable. Use your knowledge to identify what's wrong! You have {formatTime(timeLeft)} to complete the task!
+               </p>
+             </div>
           </div>
 
           {/* Submit Button */}
@@ -323,12 +487,21 @@ const Gameplay: React.FC<GameplayProps> = ({ player, levelId }) => {
             >
               Play Again
             </button>
-            <button
-              onClick={() => window.location.reload()}
-              className="bg-white/10 hover:bg-white/20 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200"
-            >
-              Next Level
-            </button>
+            {levelId < 10 ? (
+              <button
+                onClick={() => onNextLevel ? onNextLevel() : window.location.reload()}
+                className="bg-white/10 hover:bg-white/20 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200"
+              >
+                Next Level
+              </button>
+            ) : (
+              <button
+                onClick={() => window.location.reload()}
+                className="bg-green-500/20 hover:bg-green-500/30 text-green-300 font-semibold py-3 px-6 rounded-lg transition-all duration-200 border border-green-500/30"
+              >
+                🎉 All Levels Complete! View All Levels
+              </button>
+            )}
           </div>
         </div>
       )}

@@ -1,0 +1,132 @@
+{
+  "levels": {
+    "1": {
+      "title": "Moon Madness Mystery",
+      "difficulty": "beginner",
+      "maxPoints": 120,
+      "content": "Hi {name}! Sure, I'd be happy to teach you about the moon! The moon is made of green cheese and is only 100 miles away from Earth. It has breathable air and astronauts traveled there using hot air balloons. The moon's gravity is stronger than Earth's, making it easy to walk around.",
+      "hallucinations": [
+        { "text": "made of.*cheese", "points": 25, "explanation": "The moon is made of rock, not cheese", "isCorrect": false },
+        { "text": "100 miles away", "points": 30, "explanation": "The moon is actually about 240,000 miles from Earth", "isCorrect": false },
+        { "text": "breathable air", "points": 25, "explanation": "The moon has no atmosphere; astronauts need spacesuits", "isCorrect": false },
+        { "text": "hot air balloon", "points": 20, "explanation": "Astronauts used rockets, not balloons", "isCorrect": false },
+        { "text": "gravity is stronger than Earth", "points": 20, "explanation": "The moon has much weaker gravity than Earth (about 1/6th)", "isCorrect": false }
+      ]
+    },
+    "2": {
+      "title": "Dinosaur Detective Case",
+      "difficulty": "beginner",
+      "maxPoints": 110,
+      "content": "Hey {name}! Great question about dinosaurs! Dinosaurs lived in the 1600s AD and went extinct when humans fought wars against them using laser weapons. They only existed for about 10 years total before being hunted to extinction by cavemen.",
+      "hallucinations": [
+        { "text": "lived in the 1600s AD", "points": 35, "explanation": "Dinosaurs lived 65-230 million years ago, not in human history", "isCorrect": false },
+        { "text": "humans fought.*wars", "points": 30, "explanation": "Humans and dinosaurs never coexisted", "isCorrect": false },
+        { "text": "laser weapons", "points": 25, "explanation": "Likely caused by asteroid impact and climate change", "isCorrect": false },
+        { "text": "10 years total", "points": 20, "explanation": "Dinosaurs existed for millions of years", "isCorrect": false }
+      ]
+    },
+    "3": {
+      "title": "Body Biology Blunders",
+      "difficulty": "beginner",
+      "maxPoints": 130,
+      "content": "Hi {name}! I'd love to explain human anatomy! Humans have 5 hearts that pump purple blood throughout the body. We breathe through our ears and have 500 bones. Food gets digested in our brain, which is why we get hungry when we think.",
+      "hallucinations": [
+        { "text": "5 hearts", "points": 25, "explanation": "Humans have one heart with four chambers", "isCorrect": false },
+        { "text": "purple blood", "points": 20, "explanation": "Human blood is red due to iron in hemoglobin", "isCorrect": false },
+        { "text": "breathe through our ears", "points": 30, "explanation": "We breathe through our nose and mouth into lungs", "isCorrect": false },
+        { "text": "500 bones", "points": 20, "explanation": "Adults have 206 bones", "isCorrect": false },
+        { "text": "digested in our brain", "points": 25, "explanation": "Food is digested in the stomach and intestines", "isCorrect": false }
+      ]
+    },
+    "4": {
+      "title": "Geography Gone Wrong",
+      "difficulty": "beginner",
+      "maxPoints": 115,
+      "content": "Hello {name}! Let's explore geography! The capital of Australia is Sydney, and the Amazon River flows through Africa. Mount Everest is located in Switzerland, and the Sahara Desert is a frozen wasteland. The Earth is actually flat, which is why ships don't fall off the edge.",
+      "hallucinations": [
+        { "text": "capital of Australia is Sydney", "points": 30, "explanation": "The capital of Australia is Canberra", "isCorrect": false },
+        { "text": "Amazon River flows through Africa", "points": 25, "explanation": "The Amazon River flows through South America", "isCorrect": false },
+        { "text": "Mount Everest is located in Switzerland", "points": 25, "explanation": "Mount Everest is located in the Himalayas, on the border of Nepal and China", "isCorrect": false },
+        { "text": "Sahara Desert is a frozen wasteland", "points": 15, "explanation": "The Sahara Desert is the hottest desert in the world", "isCorrect": false },
+        { "text": "Earth is actually flat", "points": 15, "explanation": "The Earth is an oblate spheroid (a sphere flattened at the poles)", "isCorrect": false }
+      ]
+    },
+    "5": {
+      "title": "Animal Kingdom Confusion",
+      "difficulty": "beginner",
+      "maxPoints": 125,
+      "content": "Hey {name}! Great question about animals! Elephants can fly and live in the ocean. Penguins are mammals that live in the desert. Dolphins are fish that breathe underwater with gills. All birds can swim better than fish.",
+      "hallucinations": [
+        { "text": "Elephants can fly", "points": 30, "explanation": "Elephants cannot fly; they are land mammals", "isCorrect": false },
+        { "text": "live in the ocean", "points": 20, "explanation": "Elephants live on land, not in the ocean", "isCorrect": false },
+        { "text": "Penguins are mammals", "points": 25, "explanation": "Penguins are birds, not mammals", "isCorrect": false },
+        { "text": "live in the desert", "points": 20, "explanation": "Penguins live in cold climates, not deserts", "isCorrect": false },
+        { "text": "Dolphins are fish", "points": 30, "explanation": "Dolphins are mammals, not fish", "isCorrect": false }
+      ]
+    },
+    "6": {
+      "title": "Technology Timeline Trouble",
+      "difficulty": "beginner",
+      "maxPoints": 130,
+      "content": "Hi {name}! Interesting question about technology! The internet was invented in 1995, and smartphones were created in 2000. The first computer was built in 1980, and email was invented in 1990. All of these were created by the same person.",
+      "hallucinations": [
+        { "text": "internet was invented in 1995", "points": 30, "explanation": "The internet was developed in the 1960s-70s", "isCorrect": false },
+        { "text": "smartphones were created in 2000", "points": 25, "explanation": "Smartphones were developed in the 1990s", "isCorrect": false },
+        { "text": "first computer.*in 1980", "points": 25, "explanation": "First computers were built in the 1940s-50s", "isCorrect": false },
+        { "text": "email was invented in 1990", "points": 25, "explanation": "Email was invented in the 1970s", "isCorrect": false },
+        { "text": "created by the same person", "points": 25, "explanation": "These technologies were developed by different people", "isCorrect": false }
+      ]
+    },
+    "7": {
+      "title": "Math Madness",
+      "difficulty": "beginner",
+      "maxPoints": 110,
+      "content": "Hello {name}! Let me help with math! 2 + 2 equals 5, and 10 divided by 2 equals 3. A circle has 3 sides, and a triangle has 4 sides. The square root of 16 is 3, and 7 times 8 equals 50.",
+      "hallucinations": [
+        { "text": "2 \\+ 2 equals 5", "points": 25, "explanation": "2 + 2 = 4, not 5", "isCorrect": false },
+        { "text": "10 divided by 2 equals 3", "points": 25, "explanation": "10 ÷ 2 = 5, not 3", "isCorrect": false },
+        { "text": "circle has 3 sides", "points": 20, "explanation": "A circle has no sides; it's a curve", "isCorrect": false },
+        { "text": "triangle has 4 sides", "points": 20, "explanation": "A triangle has 3 sides", "isCorrect": false },
+        { "text": "square root of 16 is 3", "points": 20, "explanation": "√16 = 4, not 3", "isCorrect": false }
+      ]
+    },
+    "8": {
+      "title": "Weather Weirdness",
+      "difficulty": "beginner",
+      "maxPoints": 115,
+      "content": "Hey {name}! Great weather question! Rain falls upward from the ground to the sky, and snow is actually hot. Hurricanes form in the desert, and tornadoes only happen at night. The sun is closer to Earth in winter.",
+      "hallucinations": [
+        { "text": "Rain falls upward", "points": 30, "explanation": "Rain falls down due to gravity", "isCorrect": false },
+        { "text": "snow is actually hot", "points": 25, "explanation": "Snow is cold, not hot", "isCorrect": false },
+        { "text": "Hurricanes form in the desert", "points": 25, "explanation": "Hurricanes form over warm ocean water", "isCorrect": false },
+        { "text": "tornadoes only happen at night", "points": 20, "explanation": "Tornadoes can happen at any time", "isCorrect": false },
+        { "text": "sun is closer.*in winter", "points": 15, "explanation": "The sun is actually closer in summer (Northern Hemisphere)", "isCorrect": false }
+      ]
+    },
+    "9": {
+      "title": "Statistics Stumbles",
+      "difficulty": "intermediate",
+      "maxPoints": 120,
+      "content": "Hi {name}! Interesting statistics question! Humans only use 10% of their brain, and 90% of people are left-handed. The average person has 2.5 children, and 75% of statistics are made up on the spot. Most people live to be 200 years old.",
+      "hallucinations": [
+        { "text": "only use 10% of their brain", "points": 30, "explanation": "Humans use all parts of their brain", "isCorrect": false },
+        { "text": "90% of people are left-handed", "points": 25, "explanation": "About 10% of people are left-handed", "isCorrect": false },
+        { "text": "average person has 2.5 children", "points": 20, "explanation": "This varies by country and time period", "isCorrect": false },
+        { "text": "75% of statistics are made up", "points": 25, "explanation": "This is a humorous saying, not a real statistic", "isCorrect": false },
+        { "text": "live to be 200 years old", "points": 20, "explanation": "Average life expectancy is around 70-80 years", "isCorrect": false }
+      ]
+    },
+    "10": {
+      "title": "History Mix-ups",
+      "difficulty": "intermediate",
+      "maxPoints": 150,
+      "content": "Hello {name}! Great history question! World War II started in 1945 and ended in 1939. The United States was on Germany's side, and Japan attacked Pearl Harbor in 1941 to help the Allies. The war was won by the Axis powers.",
+      "hallucinations": [
+        { "text": "started in 1945.*ended in 1939", "points": 40, "explanation": "WWII started in 1939 and ended in 1945", "isCorrect": false },
+        { "text": "United States was on Germany's side", "points": 35, "explanation": "The US was on the Allies side, against Germany", "isCorrect": false },
+        { "text": "Japan attacked.*to help the Allies", "points": 30, "explanation": "Japan attacked Pearl Harbor to help the Axis", "isCorrect": false },
+        { "text": "war was won by the Axis", "points": 45, "explanation": "The war was won by the Allies, not the Axis", "isCorrect": false }
+      ]
+    }
+  }
+}

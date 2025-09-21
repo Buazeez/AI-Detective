@@ -1,7 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Player, LeaderboardEntry, GameSession } from '../types';
-import { db } from '../lib/firebase';
-import { collection, addDoc, updateDoc, doc, getDocs, query, orderBy, limit } from 'firebase/firestore';
+import { LocalLeaderboard } from '../lib/localLeaderboard';
 
 interface GameContextType {
   currentLevel: number;
@@ -29,54 +28,34 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [totalScore, setTotalScore] = useState(0);
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
 
-  const updateLeaderboard = async () => {
+  const updateLeaderboard = () => {
     try {
-      const q = query(
-        collection(db, 'players'),
-        orderBy('totalScore', 'desc'),
-        limit(100)
-      );
-      
-      const querySnapshot = await getDocs(q);
-      const entries: LeaderboardEntry[] = [];
-      
-      querySnapshot.forEach((doc, index) => {
-        const data = doc.data();
-        entries.push({
-          id: doc.id,
-          name: data.name,
-          score: data.totalScore,
-          level: data.currentLevel,
-          country: data.country,
-          rank: index + 1
-        });
-      });
-      
+      const entries = LocalLeaderboard.getLeaderboard();
       setLeaderboard(entries);
     } catch (error) {
       console.error('Error updating leaderboard:', error);
     }
   };
 
-  const submitGameSession = async (session: Omit<GameSession, 'id' | 'completedAt'>) => {
+  const submitGameSession = (session: Omit<GameSession, 'id' | 'completedAt'>) => {
     try {
-      await addDoc(collection(db, 'gameSessions'), {
+      // Store game session in localStorage for local tracking
+      const sessions = JSON.parse(localStorage.getItem('ai-detective-sessions') || '[]');
+      sessions.push({
         ...session,
+        id: `session_${Date.now()}`,
         completedAt: new Date()
       });
+      localStorage.setItem('ai-detective-sessions', JSON.stringify(sessions));
     } catch (error) {
       console.error('Error submitting game session:', error);
     }
   };
 
-  const updatePlayerScore = async (playerId: string, score: number, level: number) => {
+  const updatePlayerScore = (playerId: string, score: number, level: number) => {
     try {
-      const playerRef = doc(db, 'players', playerId);
-      await updateDoc(playerRef, {
-        totalScore: score,
-        currentLevel: level,
-        lastPlayed: new Date()
-      });
+      LocalLeaderboard.updatePlayerScore(playerId, score, level);
+      updateLeaderboard();
     } catch (error) {
       console.error('Error updating player score:', error);
     }

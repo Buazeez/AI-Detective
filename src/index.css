@@ -4,7 +4,7 @@
 
 @layer base {
   * {
-    @apply border-border;
+    @apply border-gray-200;
   }
   
   body {
@@ -30,9 +30,21 @@
     @apply bg-white/10 border border-white/30 rounded-lg px-4 py-3 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-detective-500 focus:border-transparent;
   }
   
-  .hallucination-text {
-    @apply cursor-pointer transition-all duration-200 hover:bg-red-500/20 hover:text-red-300 rounded px-1 py-0.5;
-  }
+        .hallucination-text {
+          @apply cursor-pointer transition-all duration-200 hover:bg-red-500/20 hover:text-red-300 hover:border-b hover:border-dashed hover:border-red-400/50 rounded px-1 py-0.5;
+        }
+        
+        .select-text {
+          user-select: text;
+          -webkit-user-select: text;
+          -moz-user-select: text;
+          -ms-user-select: text;
+        }
+        
+        .select-text::selection {
+          background-color: rgba(59, 130, 246, 0.3);
+          color: white;
+        }
   
   .correct-text {
     @apply text-green-300;

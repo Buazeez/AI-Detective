@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { LogOut, Trophy, User, Settings } from 'lucide-react';
 import { Player } from '../types';
 import Leaderboard from './Leaderboard';
@@ -8,18 +8,35 @@ import LevelSelect from './LevelSelect';
 interface MainGameProps {
   player: Player;
   onLogout: () => void;
+  onPlayerUpdate: (player: Player) => void;
 }
 
 type View = 'gameplay' | 'leaderboard' | 'levels';
 
-const MainGame: React.FC<MainGameProps> = ({ player, onLogout }) => {
+const MainGame: React.FC<MainGameProps> = ({ player, onLogout, onPlayerUpdate }) => {
   const [currentView, setCurrentView] = useState<View>('gameplay');
-  const [selectedLevel, setSelectedLevel] = useState(1);
+  const [selectedLevel, setSelectedLevel] = useState(player.currentLevel);
 
   const handleLevelSelect = (levelId: number) => {
     setSelectedLevel(levelId);
     setCurrentView('gameplay');
   };
+
+  const handleNextLevel = () => {
+    const nextLevel = selectedLevel + 1;
+    if (nextLevel <= 10) { // Assuming we have 10 levels
+      setSelectedLevel(nextLevel);
+      setCurrentView('gameplay');
+    } else {
+      // All levels completed, go to level selection
+      setCurrentView('levels');
+    }
+  };
+
+  // Update selected level when player's current level changes
+  useEffect(() => {
+    setSelectedLevel(player.currentLevel);
+  }, [player.currentLevel]);
 
   return (
     <div className="min-h-screen">
@@ -91,7 +108,12 @@ const MainGame: React.FC<MainGameProps> = ({ player, onLogout }) => {
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {currentView === 'gameplay' && (
-          <Gameplay player={player} levelId={selectedLevel} />
+          <Gameplay 
+            player={player} 
+            levelId={selectedLevel} 
+            onPlayerUpdate={onPlayerUpdate} 
+            onNextLevel={handleNextLevel}
+          />
         )}
         {currentView === 'levels' && (
           <LevelSelect 

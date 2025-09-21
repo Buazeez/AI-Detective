@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Search, Globe, Users, Award } from 'lucide-react';
 import { Player } from '../types';
+import toast from 'react-hot-toast';
 
 interface RegistrationScreenProps {
   onRegistration: (player: Player) => void;
@@ -38,6 +39,24 @@ const RegistrationScreen: React.FC<RegistrationScreenProps> = ({ onRegistration 
     };
 
     onRegistration(player);
+    toast.success('Welcome to AI Detective!');
+  };
+
+  const handleGuestContinue = () => {
+    const player: Player = {
+      id: `guest_${Date.now()}`,
+      name: 'Guest Detective',
+      ageRange: '11-13',
+      country: 'Unknown',
+      totalScore: 0,
+      currentLevel: 1,
+      badges: [],
+      createdAt: new Date(),
+      lastPlayed: new Date()
+    };
+
+    onRegistration(player);
+    toast.success('Welcome, Guest Detective!');
   };
 
   return (
@@ -158,17 +177,7 @@ const RegistrationScreen: React.FC<RegistrationScreenProps> = ({ onRegistration 
               </button>
               <button
                 type="button"
-                onClick={() => onRegistration({
-                  id: `guest_${Date.now()}`,
-                  name: 'Guest Detective',
-                  ageRange: '11-13',
-                  country: 'Unknown',
-                  totalScore: 0,
-                  currentLevel: 1,
-                  badges: [],
-                  createdAt: new Date(),
-                  lastPlayed: new Date()
-                })}
+                onClick={handleGuestContinue}
                 className="bg-white/10 hover:bg-white/20 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200"
               >
                 Continue as Guest

@@ -1,45 +1,67 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Toaster } from 'react-hot-toast';
 import { GameProvider } from './contexts/GameContext';
 import RegistrationScreen from './components/RegistrationScreen';
 import MainGame from './components/MainGame';
 import { Player } from './types';
-import { LocalLeaderboard } from './lib/localLeaderboard';
+import { AuthService } from './lib/authService';
+import { User } from 'firebase/auth';
 
 function App() {
   const [player, setPlayer] = useState<Player | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Check for existing player in localStorage
-    const savedPlayer = localStorage.getItem('ai-detective-player');
-    if (savedPlayer) {
-      try {
-        const playerData = JSON.parse(savedPlayer);
-        setPlayer(playerData);
-      } catch (error) {
-        console.error('Error parsing saved player data:', error);
+    // Listen for authentication state changes
+    const unsubscribe = AuthService.onAuthStateChanged(async (user: User | null) => {
+      if (user) {
+        // User is signed in, create player object
+        const player = AuthService.createPlayerFromUser(user);
+        
+        // Try to load additional player data from localStorage
+        const savedPlayer = localStorage.getItem('ai-detective-player');
+        if (savedPlayer) {
+          try {
+            const savedData = JSON.parse(savedPlayer);
+            // Merge saved data with user data
+            const mergedPlayer = {
+              ...player,
+              ...savedData,
+              id: user.uid, // Always use Firebase UID
+              name: savedData.name || player.name
+            };
+            setPlayer(mergedPlayer);
+          } catch (error) {
+            console.error('Error parsing saved player data:', error);
+            setPlayer(player);
+          }
+        } else {
+          setPlayer(player);
+        }
+      } else {
+        // User is signed out
+        setPlayer(null);
         localStorage.removeItem('ai-detective-player');
       }
-    }
-    setIsLoading(false);
+      setIsLoading(false);
+    });
+
+    return () => unsubscribe();
   }, []);
 
   const handlePlayerRegistration = (playerData: Player) => {
     setPlayer(playerData);
     localStorage.setItem('ai-detective-player', JSON.stringify(playerData));
-    // Add player to local leaderboard
-    LocalLeaderboard.addPlayer(playerData);
   };
 
-  const handleLogout = () => {
-    setPlayer(null);
-    localStorage.removeItem('ai-detective-player');
-  };
-
-  const handlePlayerUpdate = (updatedPlayer: Player) => {
-    setPlayer(updatedPlayer);
-    localStorage.setItem('ai-detective-player', JSON.stringify(updatedPlayer));
+  const handleLogout = async () => {
+    try {
+      await AuthService.signOut();
+      setPlayer(null);
+      localStorage.removeItem('ai-detective-player');
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
   };
 
   if (isLoading) {
@@ -71,7 +93,7 @@ function App() {
         {!player ? (
           <RegistrationScreen onRegistration={handlePlayerRegistration} />
         ) : (
-          <MainGame player={player} onLogout={handleLogout} onPlayerUpdate={handlePlayerUpdate} />
+          <MainGame player={player} onLogout={handleLogout} />
         )}
       </div>
     </GameProvider>
