@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { Trophy, Medal, Award, Crown, Star } from 'lucide-react';
-import { Player, LeaderboardEntry } from '../types';
+import { Player } from '../types';
 import { useGame } from '../contexts/GameContext';
 import { LocalLeaderboard } from '../lib/localLeaderboard';
 
@@ -80,7 +80,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ player }) => {
           </div>
         ) : (
           <div className="space-y-2">
-            {filteredLeaderboard.map((entry, index) => (
+                   {filteredLeaderboard.map((entry) => (
               <div
                 key={entry.id}
                 className={`leaderboard-entry ${

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { LogOut, Trophy, User, Settings } from 'lucide-react';
+import { LogOut, Trophy, User } from 'lucide-react';
 import { Player } from '../types';
 import Leaderboard from './Leaderboard';
 import Gameplay from './Gameplay';

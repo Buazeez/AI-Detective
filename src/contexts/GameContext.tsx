@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { Player, LeaderboardEntry, GameSession } from '../types';
+import { LeaderboardEntry, GameSession } from '../types';
 import { LocalLeaderboard } from '../lib/localLeaderboard';
 
 interface GameContextType {
@@ -8,9 +8,9 @@ interface GameContextType {
   totalScore: number;
   setTotalScore: (score: number) => void;
   leaderboard: LeaderboardEntry[];
-  updateLeaderboard: () => Promise<void>;
-  submitGameSession: (session: Omit<GameSession, 'id' | 'completedAt'>) => Promise<void>;
-  updatePlayerScore: (playerId: string, score: number, level: number) => Promise<void>;
+  updateLeaderboard: () => void;
+  submitGameSession: (session: Omit<GameSession, 'id' | 'completedAt'>) => void;
+  updatePlayerScore: (playerId: string, score: number, level: number) => void;
 }
 
 const GameContext = createContext<GameContextType | undefined>(undefined);
